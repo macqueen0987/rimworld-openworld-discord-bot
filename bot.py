@@ -189,8 +189,19 @@ def main():
                 msg = "Successfully modified. Current whitelist:\n```\n" + msg + "```Reload the server to apply changes!"
                 await message.reply(msg.format(message), mention_author=mention_author)
 
+            if msg == "auto_update":
+                if var.auto_update:
+                    update_mods.stop()
+                    msg = 'stopped'
+                else:
+                    update_mods.start()
+                    msg = 'running'
+                var.auto_update = not var.auto_update
+                msg = "Successfully modified. Auto update is currently " + msg
+                await message.reply(msg.format(message), mention_author=mention_author)
 
-    @tasks.loop(hours=24)
+
+    @tasks.loop(hours=var.auto_update_mods)
     async def update_mods():
         await client.change_presence(activity=discord.Game(name="Updating Mods"))
         rimworld.update_mods()
@@ -201,7 +212,11 @@ def main():
     async def on_ready():
         global start
         reload()
-        update_mods.start()
+
+        if var.auto_update:
+            update_mods.start()
+        else:
+            await client.change_presence(activity=discord.Game(name="Listening to Commands"))
 
     start = time.time()
     client.run(var.token)

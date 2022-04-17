@@ -1,8 +1,9 @@
-# Your discord ID in numbers
-me = 111111
+
+# Your discord ID in int
+me = 11111
 
 # bot token
-token = 'a very secret token'
+token = 'your_bot_token'
 
 
 #==============================================================SOME LINE FOR ORGANIZATION===================================================
@@ -23,7 +24,7 @@ mention_author = False          # metion author in message, if True it will alwa
 
 auto_update_mods = 24           # invterval to auto update the mods in hours. updating mods are slow and deletes all mods in folder when started.
                                 # Couldn't think of a better way of updating mods...
-
+auto_update = False             # toggle auto update of mods. if True, it will start updating mods in the start of bot
 #====================================================SPACE FOR MODS=============================================
 # neccessary mods steam collection id, set None if it doesn't exist
 # id can be found in mods collection page url, after the filedetails/?id=

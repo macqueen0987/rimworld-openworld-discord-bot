@@ -162,28 +162,29 @@ def whitelist(user):
     return preprocessed
 
 
+def get_mods(url):
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        html = response.text
+        # print(html)
+        soup = BeautifulSoup(html, 'html.parser')
+        soup = soup.find_all("div", class_="collectionItem")
+        dic = []
+        for i in soup:
+            dic.append(i.get("id").replace("sharedfile_",""))
+
+
+        return dic
+
+    else: 
+        print(response.status_code)
+        return None
+
 # when you want to just keep the mods updated, only change mods in var.py file
 def update_mods(silent = True, autoreload = True):  # change silent to false if you want to see everything and autoreload to False if you don't want to reload
     url = 'https://steamcommunity.com/sharedfiles/filedetails/?id='
 
-    def get_mods(url):
-        response = requests.get(url)
-
-        if response.status_code == 200:
-            html = response.text
-            # print(html)
-            soup = BeautifulSoup(html, 'html.parser')
-            soup = soup.find_all("div", class_="collectionItem")
-            dic = []
-            for i in soup:
-                dic.append(i.get("id").replace("sharedfile_",""))
-
-
-            return dic
-
-        else: 
-            print(response.status_code)
-            return None
 
     if var.mods is not None:
         mods = get_mods(url + str(var.mods))
