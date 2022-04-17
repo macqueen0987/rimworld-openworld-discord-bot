@@ -19,7 +19,7 @@ logfile = 'screenlog.0'         # logfile of the screen from server_dir. please 
 
 wait_for_log = 10               # time you will wait for the log, if too short you may not get the logs from inputs
 
-max_line = 40                   # max line for bot output becaus discord has max amount of letters you can send
+max_line = 45                   # max line for bot output becaus discord has max amount of letters you can send
 mention_author = False          # metion author in message, if True it will always mention you. i perfer off
 
 auto_update_mods = 24           # invterval to auto update the mods in hours. updating mods are slow and deletes all mods in folder when started.
