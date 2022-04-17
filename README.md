@@ -1,5 +1,5 @@
 # rimworld-openworld-discord-bot
-Discord bot that helps taking care of rimworld openworld mod server.
+This is a Discord.py bot that helps taking care of rimworld openworld mod server.
 I'll try to add more features in the future
 
 
@@ -38,3 +38,7 @@ Helps are written as thinking the prefix is ! as default
 !whitelist [user id]              : toggles user in whitelist
 !auto_update                      : toggles auto_update mod. WARNING: updating mods are very slow and all mods will be deleted when updating
 ```
+
+## Setup
+Run the setup.py and you will get all the pip libraries.
+In case it fails the required are discord.py, importlib, asyncio, requests, beautifulsoup4
