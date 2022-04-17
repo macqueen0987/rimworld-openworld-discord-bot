@@ -1,4 +1,4 @@
-# rimworld-openworld-discord-bot
+# Rimworld-Openworld-Discord-Bot
 This is a Discord.py bot that helps taking care of rimworld openworld mod server.
 I'll try to add more features in the future
 
@@ -40,5 +40,18 @@ Helps are written as thinking the prefix is ! as default
 ```
 
 ## Setup
-Run the setup.py and you will get all the pip libraries.
-In case it fails the required are discord.py, importlib, asyncio, requests, beautifulsoup4
+Run the setup.py and you will get all the pip libraries.   
+In case it fails the required are discord.py, importlib, asyncio, requests, beautifulsoup4    
+I am currently using python 3.8.10 which is here https://www.python.org/downloads/release/python-3810/
+
+### Setting up discord bot
+https://discordpy.readthedocs.io/en/stable/discord.html
+### Setting up Steamcmd
+We will be using Steamcmd to download mods.   
+I used manual installation.   
+https://developer.valvesoftware.com/wiki/SteamCMD#Manually
+### Starting the bot
+Fill in the var.py file whith your informations.   
+Create a screen where you will run the openworld mod server and enable the logging by pressing ctrl + a, shift h.      
+It HAS to be created at the same loaction and as the same name with server_dir, screen_name in var.py      
+Then run the bot at another screen.   
