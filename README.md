@@ -55,3 +55,6 @@ Fill in the var.py file whith your informations.
 Create a screen where you will run the openworld mod server and enable the logging by pressing ctrl + a, shift h.      
 It HAS to be created at the same loaction and as the same name with server_dir, screen_name in var.py      
 Then run the bot at another screen.   
+### Auto mod update without running bot
+After you have filled in var.py, running the rimworld.py in the console will update all the mods.    
+To loop this, create a skeduler or something.
