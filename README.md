@@ -36,4 +36,5 @@ Helps are written as thinking the prefix is ! as default
 !notify [user] [something to say] : notifies user   
 !broadcast [something to say]     : broadcast message   
 !whitelist [user id]              : toggles user in whitelist
+!auto_update                      : toggles auto_update mod. WARNING: updating mods are very slow and all mods will be deleted when updating
 ```
