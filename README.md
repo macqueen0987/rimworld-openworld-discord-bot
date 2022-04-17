@@ -35,15 +35,15 @@ Helps are written as thinking the prefix is ! as default
 !status                           : get server status   
 !start                            : starts the openworld server
 !exit                             : shutdowns the openworld server
-!console [some command]           : sends command directly to server file directory   
+!c [some command]                 : sends command directly to server file directory   
 !download [mod id]                : dowloads mod using steamcmd. add "required" in between to download it at Mods folder
 !delete [mod id]                  : deletes mod
 !say [something to say]           : sends message in chat   
 !notify [user] [something to say] : notifies user   
 !broadcast [something to say]     : broadcast message   
-!whitelist [user id]              : toggles user in whitelist
+!whitelist [user id]              : toggles user in whitelist, only !whitelist will return 'whitelist player.txt'
 !update_mods                      : manually update mods now
-!add_dlc                          : add dlc as whitelist mods
+!add_dlc                          : add dlc and core as whitelist mods
 !auto_update                      : toggles auto_update mod. WARNING: updating mods are very slow and all mods will be deleted when updating
 ```
 
