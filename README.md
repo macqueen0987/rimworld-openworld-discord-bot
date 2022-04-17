@@ -23,7 +23,7 @@ Helps are written as thinking the prefix is ! as default
 !ping      : show ping
 !uptime    : show how long the bot has been running
 
----Under this line requires discord server moderator commands---
+---Under this line requires discord server moderator rights---
 !shutdown                         : shutdowns this bot
 !s [some command]                 : sends command to screen which openworld server is running
 !reload                           : reloads mods and whitelists   
