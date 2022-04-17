@@ -114,27 +114,15 @@ def main():
                     return
 
 
-            if msg == 'reload':
-                temp = await message.reply("reloading.. takes up to "+ str(var.wait_for_log + 5) +" seconds".format(message), mention_author=mention_author)
-                log = await rimworld.reload()
-                msg = "Reloaded successfully\n```" + log[0] + "```"
+            if msg in ['reload', 'status,', 'list']:
+                temp = await message.reply("running command.. takes up to "+ str(var.wait_for_log + 5) +" seconds".format(message), mention_author=mention_author)
+                log = await rimworld.send_command(msg, True)
+                msg = "Executed successfully\n```" + log[0] + "```"
                 await temp.edit(content = msg.format(message), mention_author=mention_author)
 
                 if len(log) > 1:
                     for i in range(1,len(log)):
                         await temp.channel.send("```" + log[i] + "```".format(message), mention_author=mention_author)
-
-            if msg == 'status':
-                temp = await message.reply("checking status.. takes up to "+ str(var.wait_for_log + 5) +" seconds".format(message), mention_author=mention_author)
-                log = await rimworld.status()
-                msg = "Status checked successfully\n```" + log[0] + "```"
-                allowed_mentions = discord.AllowedMentions.none()
-                await temp.edit(content = msg.format(message), allowed_mentions=allowed_mentions)
-
-                if len(log) > 1:
-                    for i in range(1,len(log)):
-                        await temp.channel.send("```" + log[i] + "```".format(message), mention_author=mention_author)
-
 
             if msg == 'command':
                 params = message.content.replace(var.prefix + "command ", "")
@@ -177,18 +165,9 @@ def main():
                 msg = rimworld.delete_mod(params)
                 await message.reply(msg.format(message), mention_author=mention_author)
 
-            if msg == 'broadcast':
-                params = message.content.replace(var.prefix + "broadcast ", "")
-                await rimworld.broadcast(params)
-                await message.reply("message broadcasted", mention_author=mention_author)
-
-            if msg == 'notify':
-                params = message.content.replace(var.prefix + "notify ", "")
-                user = params.split(" ")[0]
-                param = params.replace(user + " ","")
-                await rimworld.broadcast(user, param)
-                await message.reply("notification sent", mention_author=mention_author)
-
+            if msg in ['broadcast', 'notify']:
+                await rimworld.send_command(message.content.replace(var.prefix,""))
+                await message.reply("message sent", mention_author=mention_author)
 
 
 

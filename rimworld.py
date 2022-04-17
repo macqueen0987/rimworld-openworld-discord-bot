@@ -125,23 +125,14 @@ def delete_mod(mod_id):
         return "this mod is not installed"
 
 
-def whiteliste(user):
+def whitelist(user):
     pass
-
-
-
-
-async def reload():
-    return await send_command("reload", True)
 
 
 async def broadcast(msg):
     msg = 'broadcast ' + msg
     return await send_command(msg)
 
-
-async def status():
-    return await send_command("status", True)
 
 
 async def notify(player, msg):
