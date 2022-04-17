@@ -50,12 +50,15 @@ In case it fails the required are discord.py, importlib, asyncio, requests, beau
 https://discordpy.readthedocs.io/en/stable/discord.html
 ### Setting up Steamcmd
 We will be using Steamcmd to download mods.   
-I used manual installation and you need to write steamcmd directory in var.py.   
+I used manual installation and you need to write steamcmd directory in var.py.    
 https://developer.valvesoftware.com/wiki/SteamCMD#Manually
+### Starting the server
+Start the screen at where your "Open Wrold Server" server start file is located.         
+It HAS to be created at the same loaction and as the same name with server_dir, screen_name in var.py        
+```screen -S rimworld``` will start the screen named rimworld.          
+Enable the logging by pressing ctrl + a, shift h.      
 ### Starting the bot
 Fill in the var.py file whith your informations.   
-Create a screen where you will run the openworld mod server and enable the logging by pressing ctrl + a, shift h.      
-It HAS to be created at the same loaction and as the same name with server_dir, screen_name in var.py        
 Then run the bot at another screen by running bot.py.   
 ### Auto mod update without running bot
 After you have filled in var.py, running the rimworld.py in the console will update all the mods.    
