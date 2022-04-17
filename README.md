@@ -50,7 +50,7 @@ In case it fails the required are discord.py, importlib, asyncio, requests, beau
 https://discordpy.readthedocs.io/en/stable/discord.html
 ### Setting up Steamcmd
 We will be using Steamcmd to download mods.   
-I used manual installation.   
+I used manual installation and you need to write steamcmd directory in var.py.   
 https://developer.valvesoftware.com/wiki/SteamCMD#Manually
 ### Starting the bot
 Fill in the var.py file whith your informations.   
