@@ -75,3 +75,4 @@ To loop this, create a skeduler or something.
 * Downloading missing mods in mod collection
 * maybe linking server chat with discord chat?
 * server password finding service
+* role for server admins (it is currently just server admin and can't change)
