@@ -1,5 +1,5 @@
 # Rimworld-Openworld-Discord-Bot
-This is a Discord.py bot that helps taking care of rimworld openworld mod server.
+This is a Discord.py bot that helps taking care of rimworld openworld mod server.     
 I'll try to add more features in the future    
 and my english is terrible
 
