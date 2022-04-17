@@ -146,13 +146,13 @@ def main():
             # shortcut for starting the server
             if msg == "start":
                 temp = await message.reply("running command.. takes up to "+ str(var.wait_for_log + 5) +" seconds".format(message), mention_author=mention_author)
-                log = await rimworld.send_command('reload', True)
+                log = await rimworld.send_command('./"Open World Server"', True)
                 msg = "Server started with following logs\n```\n" + log[0] + "```"
                 await temp.edit(content = msg.format(message), allowed_mentions=allowed_mentions)
 
             # command that is going to server directory to do simple things
-            if msg == 'console':  
-                params = message.content.replace(var.prefix + "console ", "")
+            if msg == 'c':  
+                params = message.content.replace(var.prefix + "c ", "")
                 temp = await message.reply("sending the command..".format(message), mention_author=mention_author)
                 log = await rimworld.raw_console_command(params)
 
@@ -184,6 +184,14 @@ def main():
 
             # toggle user into whitelist
             if msg == 'whitelist':  
+                if len(message.content.split(" ")) < 2:
+                    whitelist = var.server_dir + 'Whitelisted\ Players.txt'
+                    process = os.popen('cat ' + whitelist)
+                    preprocessed = process.read()
+                    process.close()
+                    msg = "Whitelisted players\n```\n" + preprocessed + "``` Can be different from server." 
+                    await message.reply(msg.format(message), mention_author=mention_author)
+                    return
                 params = message.content.replace(var.prefix + "whitelist ", "")
                 msg = rimworld.whitelist(params)
                 msg = "Successfully modified. Current whitelist:\n```\n" + msg + "```Reload the server to apply changes!"
