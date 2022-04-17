@@ -15,6 +15,8 @@ https://github.com/TastyLollipop/OpenWorld
 This has nothing to do with the openworld mod developer, I am making for my own use.
 
 ## List of commands - most of it's commands are same with server console
+
+```
 shutdown : shutdowns this bot   
 reload : reloads mods and whitelists   
 status : get server status   
@@ -24,3 +26,4 @@ download : dowloads mod using steamcmd
 delete : deletes mods   
 notify : notifies user   
 broadcast : broadcast message   
+```
