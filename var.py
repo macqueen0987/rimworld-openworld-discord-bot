@@ -15,7 +15,7 @@ server_dir = '../rimworld/'     # loaction of rimworld openworld mod server dir
 steam_dir = '../Steam/'         # dir where steamcmd.sh is loacted. download mods via steamcmd
 screen_name = 'rimworld'        # screen name where you are running Open World Server
 
-logfile = 'screenlog.0'         # logfile of the screen please make screen in server directory.
+logfile = 'screenlog.0'         # logfile of the screen from server_dir. please make screen in server directory.
 
 wait_for_log = 10               # time you will wait for the log, if too short you may not get the logs from inputs
 
