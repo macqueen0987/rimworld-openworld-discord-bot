@@ -68,3 +68,7 @@ Then run the bot at another screen by running bot.py.
 ### Auto mod update without running bot
 After you have filled in var.py, running the rimworld.py in the console will update all the mods.    
 To loop this, create a skeduler or something.
+
+# Currently Working On
+* Downloading missing mods in mod collection
+* maybe linking server chat with discord chat?
