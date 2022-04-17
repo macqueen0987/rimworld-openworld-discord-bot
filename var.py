@@ -27,6 +27,10 @@ auto_update_mods = 24           # invterval to auto update the mods in hours. up
 auto_update = False             # toggle auto update of mods. if True, it will start updating mods in the start of bot
 
 use_dlc = True                  # whether to use dlc as whitelist mods
+
+# link to DLC in github
+dlc_link = "https://github.com/TastyLollipop/OpenWorld/raw/main/Core%20%26%20DLCs.zip"
+
 #====================================================SPACE FOR MODS=============================================
 # neccessary mods steam collection id, set None if it doesn't exist
 # id can be found in mods collection page url, after the filedetails/?id=
