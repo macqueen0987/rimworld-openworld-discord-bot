@@ -189,6 +189,21 @@ def main():
                 msg = "Successfully modified. Current whitelist:\n```\n" + msg + "```Reload the server to apply changes!"
                 await message.reply(msg.format(message), mention_author=mention_author)
 
+
+            if msg == "update_mods":
+                if var.auto_update:
+                    update_mods.restart()
+                else:
+                    rimworld.update_mods()
+
+                msg = "updated mods"
+                await message.reply(msg.format(message), mention_author=mention_author)
+
+            if msg == "add_dlc":
+                rimworld.add_dlc()
+                msg = "Added DLC"
+                await message.reply(msg.format(message), mention_author=mention_author)
+
             if msg == "auto_update":
                 if var.auto_update:
                     update_mods.stop()

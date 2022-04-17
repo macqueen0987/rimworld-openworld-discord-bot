@@ -181,6 +181,17 @@ def get_mods(url):
         print(response.status_code)
         return None
 
+
+def add_dlc(silent = True):
+    if not silent: print("Adding DLC to whitelist mods")
+    cwd = os.getcwd()
+    os.chdir(var.server_dir + 'Whitelisted Mods/')
+    os.system('wget https://github.com/TastyLollipop/OpenWorld/raw/main/DLCs.zip')
+    os.system('unzip DLCs.zip')
+    os.system('rm -rf DLCs.zip')
+    os.chdir(cwd)
+    if not silent: print("Done Adding DLC")
+
 # when you want to just keep the mods updated, only change mods in var.py file
 def update_mods(silent = True, autoreload = True):  # change silent to false if you want to see everything and autoreload to False if you don't want to reload
     url = 'https://steamcommunity.com/sharedfiles/filedetails/?id='
@@ -222,6 +233,9 @@ def update_mods(silent = True, autoreload = True):  # change silent to false if 
 
     else:
         if not silent: print("\n\nno whitelist mods\n\n")
+
+    if var.use_dlc:
+        add_dlc(silent)
 
     if autoreload:
         if not silent: print("start to reload....")

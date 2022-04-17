@@ -12,7 +12,7 @@ token = 'your_bot_token'
 prefix = '!'
 
 server_dir = '../rimworld/'     # loaction of rimworld openworld mod server dir
-steam_dir = '../Steam/'         # dir where steamcmd is loacted. download mods via steamcmd
+steam_dir = '../Steam/'         # dir where steamcmd.sh is loacted. download mods via steamcmd
 screen_name = 'rimworld'        # screen name where you are running Open World Server
 
 logfile = 'screenlog.0'         # logfile of the screen please make screen in server directory.
@@ -25,6 +25,8 @@ mention_author = False          # metion author in message, if True it will alwa
 auto_update_mods = 24           # invterval to auto update the mods in hours. updating mods are slow and deletes all mods in folder when started.
                                 # Couldn't think of a better way of updating mods...
 auto_update = False             # toggle auto update of mods. if True, it will start updating mods in the start of bot
+
+use_dlc = True                  # whether to use dlc as whitelist mods
 #====================================================SPACE FOR MODS=============================================
 # neccessary mods steam collection id, set None if it doesn't exist
 # id can be found in mods collection page url, after the filedetails/?id=
