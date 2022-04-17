@@ -4,6 +4,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 import sys
+from urllib.parse import unquote
 
 import var
 import asyncio
@@ -50,12 +51,15 @@ async def send_command(command, log = False):
 
 async def raw_console_command(command):
 
-    cwd = os.getcwd()
-    os.chdir(var.server_dir)
+    if "cd" in command:
+        param = command.replace("cd ","")
+        os.chdir(param)
+        command = "ls"
+        
     process = os.popen(command)
     preprocessed = process.read()
     process.close()
-    os.chdir(cwd)
+
 
     processed = preprocessed.split('\n')
     if len(processed) < max_line:
@@ -184,11 +188,13 @@ def get_mods(url):
 
 def add_dlc(silent = True):
     if not silent: print("Adding DLC to whitelist mods")
+    dlc_link = var.dlc_link
+    dlc_name = unquote(dlc_link.split("/")[-1])
     cwd = os.getcwd()
     os.chdir(var.server_dir + 'Whitelisted Mods/')
-    os.system('wget https://github.com/TastyLollipop/OpenWorld/raw/main/DLCs.zip')
-    os.system('unzip DLCs.zip')
-    os.system('rm -rf DLCs.zip')
+    os.system('wget '+dlc_link)
+    os.system("unzip '%s'" % dlc_name)
+    os.system('rm -rf "%s"' % dlc)
     os.chdir(cwd)
     if not silent: print("Done Adding DLC")
 
