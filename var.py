@@ -1,9 +1,8 @@
-
 # Your discord ID in numbers
-me = 11111
+me = 111111
 
 # bot token
-token = 'a_very_secret_token'
+token = 'a very secret token'
 
 
 #==============================================================SOME LINE FOR ORGANIZATION===================================================
@@ -12,12 +11,24 @@ token = 'a_very_secret_token'
 prefix = '!'
 
 server_dir = '../rimworld/'     # loaction of rimworld openworld mod server dir
-steam_dir = '../Steam/'         # dir where steamcmd is loacted
+steam_dir = '../Steam/'         # dir where steamcmd is loacted. download mods via steamcmd
 screen_name = 'rimworld'        # screen name where you are running Open World Server
 
-logfile = 'screenlog.0'         # logfile of the screen please make screen in server directory
+logfile = 'screenlog.0'         # logfile of the screen please make screen in server directory.
 
-wait_for_log = 10               # time you will wait for the log, if too short some things might not work
+wait_for_log = 10               # time you will wait for the log, if too short you may not get the logs from inputs
 
-max_line = 40                   # max line for bot output
-mention_author = False          # metion author in message
+max_line = 40                   # max line for bot output becaus discord has max amount of letters you can send
+mention_author = False          # metion author in message, if True it will always mention you. i perfer off
+
+auto_update_mods = 24           # invterval to auto update the mods in hours. updating mods are slow and deletes all mods in folder when started.
+                                # Couldn't think of a better way of updating mods...
+
+#====================================================SPACE FOR MODS=============================================
+# neccessary mods steam collection id, set None if it doesn't exist
+# id can be found in mods collection page url, after the filedetails/?id=
+mods = None
+
+# whitelist mods steam collection id, set None if it doesn't exist
+# id can be found in mods collection page url, after the filedetails/?id=
+whitelist_mods = None

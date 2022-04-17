@@ -1,16 +1,15 @@
 from __future__ import unicode_literals
+import os
 import discord
 import time
 from random import randint
 from discord.ext import tasks
 import importlib
-import os
 import asyncio
-from pprint import pprint
 import requests
-from json import loads
-import json
 import subprocess
+import shutil
+from bs4 import BeautifulSoup
 
 import var
 import rimworld
@@ -107,48 +106,65 @@ def main():
                 await message.reply(msg.format(message), mention_author=mention_author)
 
 
-            if not message.author.guild_permissions.administrator:  # under this line requires administrator rights
+             # under this line requires administrator rights
+            if not message.author.guild_permissions.administrator: 
                 if message.author.id == var.me:
                     pass
                 else:
                     return
 
-
-            if msg in ['reload', 'status,', 'list']:
+            # basically just put <prefix>s <some commands> to send commands like : !s help
+            if msg == 's':
+                msg = message.content.replace(var.prefix+"s ","")
                 temp = await message.reply("running command.. takes up to "+ str(var.wait_for_log + 5) +" seconds".format(message), mention_author=mention_author)
                 log = await rimworld.send_command(msg, True)
-                msg = "Executed successfully\n```" + log[0] + "```"
-                await temp.edit(content = msg.format(message), mention_author=mention_author)
-
-                if len(log) > 1:
-                    for i in range(1,len(log)):
-                        await temp.channel.send("```" + log[i] + "```".format(message), mention_author=mention_author)
-
-            if msg == 'command':
-                params = message.content.replace(var.prefix + "command ", "")
-                temp = await message.reply("sending the command.. takes up to "+ str(var.wait_for_log + 5) +" seconds".format(message), mention_author=mention_author)
-                log = await rimworld.send_command(params, True)
-
-                msg = "Command sent successfully\n```" + log[0] + "```"
+                msg = "Executed successfully\n```\n" + log[0] + "```"
                 await temp.edit(content = msg.format(message), allowed_mentions=allowed_mentions)
 
                 if len(log) > 1:
                     for i in range(1,len(log)):
-                        await temp.channel.send("```" + log[i] + "```".format(message), mention_author=mention_author)
+                        await temp.channel.send("```\n"+ log[i] + "```".format(message), mention_author=mention_author)
 
-            if msg == 'console':
+            # some communucation commands
+            if msg in ['broadcast', 'notify', 'say']:  
+                await rimworld.send_command(message.content.replace(var.prefix,""))
+                await message.reply("message sent", mention_author=mention_author)
+
+            # shortcut for reload
+            if msg == "reload":
+                temp = await message.reply("running command.. takes up to "+ str(var.wait_for_log + 5) +" seconds".format(message), mention_author=mention_author)
+                log = await rimworld.send_command('reload', True)
+                msg = "Reloaded successfully\n```\n" + log[0] + "```"
+                await temp.edit(content = msg.format(message), allowed_mentions=allowed_mentions)
+
+            # shortcut for shuting down the server
+            if msg == "exit":
+                temp = await message.reply("running command.. takes up to "+ str(var.wait_for_log + 5) +" seconds".format(message), mention_author=mention_author)
+                await rimworld.send_command('exit')
+                await temp.edit(content = "Server is now terminated", allowed_mentions=allowed_mentions)
+
+            # shortcut for starting the server
+            if msg == "start":
+                temp = await message.reply("running command.. takes up to "+ str(var.wait_for_log + 5) +" seconds".format(message), mention_author=mention_author)
+                log = await rimworld.send_command('reload', True)
+                msg = "Server started with following logs\n```\n" + log[0] + "```"
+                await temp.edit(content = msg.format(message), allowed_mentions=allowed_mentions)
+
+            # command that is going to server directory to do simple things
+            if msg == 'console':  
                 params = message.content.replace(var.prefix + "console ", "")
                 temp = await message.reply("sending the command..".format(message), mention_author=mention_author)
                 log = await rimworld.raw_console_command(params)
 
-                msg = "Command sent successfully\n```" + log[0] + "```"
+                msg = "Command sent successfully\n```\n"+ log[0] + "```"
                 await temp.edit(content = msg.format(message), allowed_mentions=allowed_mentions)
 
                 if len(log) > 1:
                     for i in range(1,len(log)):
-                        await temp.channel.send("```" + log[i] + "```".format(message), mention_author=mention_author)
+                        await temp.channel.send("```\n"+ log[i] + "```".format(message), mention_author=mention_author)
 
-            if msg == 'download':
+            # download the mod; include "required" to make it must have mod
+            if msg == 'download':  
                 params = message.content.replace(var.prefix + "download ", "")
                 required = False
                 if "required" in params:
@@ -157,26 +173,35 @@ def main():
                 temp = await message.reply("Starting the download".format(message), mention_author=mention_author)
                 log = await rimworld.download_mod(params, required)
 
-                msg = "Command ended. With following logs:\n```" + log + "```"
+                msg = "Command ended. With following logs:\n```\n" + log + "```"
                 await temp.edit(content = msg.format(message), allowed_mentions=allowed_mentions)
 
-            if msg == 'delete':
+            # deletes mod
+            if msg == 'delete':  
                 params = message.content.replace(var.prefix + "delete ", "")
                 msg = rimworld.delete_mod(params)
                 await message.reply(msg.format(message), mention_author=mention_author)
 
-            if msg in ['broadcast', 'notify']:
-                await rimworld.send_command(message.content.replace(var.prefix,""))
-                await message.reply("message sent", mention_author=mention_author)
+            # toggle user into whitelist
+            if msg == 'whitelist':  
+                params = message.content.replace(var.prefix + "whitelist ", "")
+                msg = rimworld.whitelist(params)
+                msg = "Successfully modified. Current whitelist:\n```\n" + msg + "```Reload the server to apply changes!"
+                await message.reply(msg.format(message), mention_author=mention_author)
 
 
+    @tasks.loop(hours=24)
+    async def update_mods():
+        await client.change_presence(activity=discord.Game(name="Updating Mods"))
+        rimworld.update_mods()
+        await client.change_presence(activity=discord.Game(name="Listening to Commands"))
 
 
     @client.event
     async def on_ready():
         global start
         reload()
-
+        update_mods.start()
 
     start = time.time()
     client.run(var.token)

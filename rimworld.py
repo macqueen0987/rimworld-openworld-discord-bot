@@ -1,11 +1,15 @@
 import subprocess
 import shutil
 import os
+import requests
+from bs4 import BeautifulSoup
+import sys
 
 import var
 import asyncio
 
 max_line = var.max_line
+
 
 async def send_command(command, log = False):
     screen_name = var.screen_name
@@ -79,7 +83,7 @@ async def download_mod(mod_id, required = False):
     if required:
         folder = 'Mods/'
     else:
-        folder = 'Whitelisted\ Mods/'
+        folder = 'Whitelisted Mods/'
     steam_library = var.server_dir + folder
     steamcmd = var.steam_dir + "steamcmd.sh"
     login = "+login anonymous"
@@ -90,9 +94,9 @@ async def download_mod(mod_id, required = False):
     stdout = stdout.decode('ascii')
     try:
         shutil.rmtree(steam_library + mod_id)
-        stdout += '\n\ninfo: already existing mod, reinstalling'
+        stdout += '\ninfo: already existing mod, reinstalling'
     except Exception as e:
-        stdout += '\n\ninfo: ' + str(e)
+        stdout += '\ninfo: new mod'
 
 
     try:
@@ -100,16 +104,16 @@ async def download_mod(mod_id, required = False):
         shutil.move(download_folder, steam_library)
 
         shutil.rmtree(steam_library+'steamapps')
-        stdout += '\n\ninfo: All Done!'
+        stdout += '\ninfo: All Done!\n\n'
     except Exception as e:
-        stdout += '\n\nerror:' + str(e)
+        stdout += '\nerror:' + str(e) + '\n\n'
 
     return stdout
 
 
 def delete_mod(mod_id):
     mod_id = str(mod_id)
-    folders = ['Mods/', 'Whitelisted\ Mods/']
+    folders = ['Mods/', 'Whitelisted Mods/']
     deleted = False
     for folder in folders:
         steam_library = var.server_dir + folder
@@ -126,17 +130,103 @@ def delete_mod(mod_id):
 
 
 def whitelist(user):
-    pass
+    whitelist = var.server_dir + 'Whitelisted\ Players.txt'
+    process = os.popen('cat ' + whitelist)
+    preprocessed = process.read()
+    process.close()
+
+    found = False
+    processed = preprocessed.split('\n')
+    for i in range(len(processed)):
+        if user == processed[i]:
+            found = True
+            processed.pop(i)
+
+        if found:
+            break
+
+    if not found:
+        preprocessed += '\n' + user
+    
+    else:
+        preprocessed = ''
+        for i in processed:
+            preprocessed += i + '\n'
+        preprocessed = preprocessed[:-1]
 
 
-async def broadcast(msg):
-    msg = 'broadcast ' + msg
-    return await send_command(msg)
+    with open(var.server_dir + 'Whitelisted Players.txt', "w") as file:
+        file.write(preprocessed)
+        file.close()
+
+    return preprocessed
 
 
+# when you want to just keep the mods updated, only change mods in var.py file
+def update_mods(silent = True, autoreload = True):  # change silent to false if you want to see everything and autoreload to False if you don't want to reload
+    url = 'https://steamcommunity.com/sharedfiles/filedetails/?id='
 
-async def notify(player, msg):
-    msg = 'notify %s %s' % (player, msg)
-    return await send_command(msg) 
+    def get_mods(url):
+        response = requests.get(url)
 
-# asyncio.run(raw_console_command("ls -l"))
+        if response.status_code == 200:
+            html = response.text
+            # print(html)
+            soup = BeautifulSoup(html, 'html.parser')
+            soup = soup.find_all("div", class_="collectionItem")
+            dic = []
+            for i in soup:
+                dic.append(i.get("id").replace("sharedfile_",""))
+
+
+            return dic
+
+        else: 
+            print(response.status_code)
+            return None
+
+    if var.mods is not None:
+        mods = get_mods(url + str(var.mods))
+        if not silent: print('Updating %d required mods' % len(mods))
+
+        cwd = os.getcwd()
+        os.chdir(var.server_dir + 'Mods/')
+        process = os.popen('rm -rf *')
+        process.close()
+        os.chdir(cwd)
+
+        for mod in mods:
+            msg = asyncio.run(download_mod(mod, required = True))
+            if not silent: print(msg)
+        if not silent: print("\n\nAll Done updating required mods\n\n")
+
+    else:
+        if not silent: print("\n\nno required mods\n\n")
+
+    if var.whitelist_mods is not None:
+        mods = get_mods(url + str(var.whitelist_mods))
+        if not silent: print('Updating %d whitelist mods' % len(mods))
+
+        cwd = os.getcwd()
+        os.chdir(var.server_dir + 'Whitelisted Mods/')
+        process = os.popen('rm -rf *')
+        process.close()
+        os.chdir(cwd)
+
+        for mod in mods:
+            msg = asyncio.run(download_mod(mod, required = False))
+            if not silent: print(msg)
+
+        if not silent: print("\n\nAll Done updating whitelist mods\n\n")
+
+    else:
+        if not silent: print("\n\nno whitelist mods\n\n")
+
+    if autoreload:
+        if not silent: print("start to reload....")
+        msg = asyncio.run(send_command("reload", log = True))
+        if not silent: print(msg[0])
+
+
+if __name__ == '__main__':
+    result = update_mods(silent = False, autoreload = True)
