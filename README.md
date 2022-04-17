@@ -17,13 +17,13 @@ This has nothing to do with the openworld mod developer, I am making for my own 
 ## List of commands - most of it's commands are same with server console
 
 ```
-shutdown : shutdowns this bot   
-reload : reloads mods and whitelists   
-status : get server status   
-command : sends command to the server console   
-console : sends command directly to server file directory   
-download : dowloads mod using steamcmd   
-delete : deletes mods   
-notify : notifies user   
+shutdown  : shutdowns this bot   
+reload    : reloads mods and whitelists   
+status    : get server status   
+command   : sends command to the server console   
+console   : sends command directly to server file directory   
+download  : dowloads mod using steamcmd   
+delete    : deletes mods   
+notify    : notifies user   
 broadcast : broadcast message   
 ```
