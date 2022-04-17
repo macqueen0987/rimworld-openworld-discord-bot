@@ -72,3 +72,4 @@ To loop this, create a skeduler or something.
 # Currently Working On
 * Downloading missing mods in mod collection
 * maybe linking server chat with discord chat?
+* server password finding service
