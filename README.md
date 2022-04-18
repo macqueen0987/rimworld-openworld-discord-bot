@@ -3,7 +3,7 @@ This is a Discord.py bot that helps taking care of rimworld openworld mod server
 I'll try to add more features in the future    
 and my english is terrible so are my codes.... but it works anyway
 ## What can it do?
-* update mods in mod collection without running bot
+* update mods in mod collection
 * send command to openworld server console
 * send command to server directory
 * start, stop server
