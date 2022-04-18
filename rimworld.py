@@ -5,6 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 import sys
 from urllib.parse import unquote
+import discord
 
 import var
 import asyncio
@@ -43,7 +44,9 @@ async def send_command(command, log = False):
                     cnt = 0
                 temp += i + '\n'
                 cnt += 1
-            msg.append(temp)
+
+            if len(temp.replace("\n","").replace(" ","")) > 0:
+                msg.append(temp)
         process.close()
 
         return msg
@@ -56,14 +59,21 @@ async def raw_console_command(command):
         os.chdir(param)
         command = "ls"
         
-    process = os.popen(command)
-    preprocessed = process.read()
-    process.close()
+    process = await asyncio.create_subprocess_shell(command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+    stdout, stderr = await process.communicate()
 
+
+    msg = [f'{command!r} exited with {process.returncode}']
+    if stdout:
+        preprocessed = stdout.decode()
+
+    if stderr:
+        preprocessed = stderr.decode()
 
     processed = preprocessed.split('\n')
+
     if len(processed) < max_line:
-        msg = [preprocessed]
+        msg.append(preprocessed)
     else:
         cnt = 0
         msg = []
@@ -89,13 +99,13 @@ async def download_mod(mod_id, required = False):
     else:
         folder = 'Whitelisted Mods/'
     steam_library = var.server_dir + folder
-    steamcmd = var.steam_dir + "steamcmd.sh"
-    login = "+login anonymous"
-    install_dir = str('+force_install_dir "'+steam_library+'"')
+    steamcmd = var.steam_dir + "steamcmd.sh "
+    login = "+login anonymous "
+    install_dir = str('+force_install_dir "'+steam_library+'" ')
     download_mod = "+workshop_download_item 294100 "+ str(mod_id)
-    process = subprocess.Popen([steamcmd, install_dir, login, download_mod, "+quit"], stdout=subprocess.PIPE)
-    stdout = process.communicate()[0]
-    stdout = stdout.decode('ascii')
+    process = await asyncio.create_subprocess_shell(steamcmd + login + install_dir + download_mod + " +quit", stdout=asyncio.subprocess.PIPE)
+    stdout = await process.communicate()
+    stdout = ''.join([str(value for value in stdout)])
     try:
         shutil.rmtree(steam_library + mod_id)
         stdout += '\ninfo: already existing mod, reinstalling'
@@ -134,7 +144,7 @@ def delete_mod(mod_id):
 
 
 def whitelist(user):
-    whitelist = var.server_dir + 'Whitelisted\ Players.txt'
+    whitelist = var.server_dir + '"Whitelisted Players.txt"'
     process = os.popen('cat ' + whitelist)
     preprocessed = process.read()
     process.close()
@@ -159,7 +169,7 @@ def whitelist(user):
         preprocessed = preprocessed[:-1]
 
 
-    with open(var.server_dir + 'Whitelisted Players.txt', "w") as file:
+    with open(var.server_dir + '"Whitelisted Players.txt"', "w") as file:
         file.write(preprocessed)
         file.close()
 
@@ -194,18 +204,26 @@ def add_dlc(silent = True):
     os.chdir(var.server_dir + 'Whitelisted Mods/')
     os.system('wget '+dlc_link)
     os.system("unzip '%s'" % dlc_name)
-    os.system('rm -rf "%s"' % dlc)
+    os.system('rm -rf "%s"' % dlc_name)
     os.chdir(cwd)
     if not silent: print("Done Adding DLC")
 
 # when you want to just keep the mods updated, only change mods in var.py file
-def update_mods(silent = True, autoreload = True):  # change silent to false if you want to see everything and autoreload to False if you don't want to reload
+async def update_mods(message = None, silent = True, autoreload = True):  # change silent to false if you want to see everything and autoreload to False if you don't want to reload
     url = 'https://steamcommunity.com/sharedfiles/filedetails/?id='
+    allowed_mentions = discord.AllowedMentions.none()
+    if message is None and not silent:
+        print_ = True
+    else:
+        print_ = False
 
+    bot = False
+    if message is not None:
+        bot = True
 
     if var.mods is not None:
         mods = get_mods(url + str(var.mods))
-        if not silent: print('Updating %d required mods' % len(mods))
+        if print_: print('Updating %d required mods' % len(mods))
 
         cwd = os.getcwd()
         os.chdir(var.server_dir + 'Mods/')
@@ -213,17 +231,22 @@ def update_mods(silent = True, autoreload = True):  # change silent to false if 
         process.close()
         os.chdir(cwd)
 
+        cnt = 0
         for mod in mods:
-            msg = asyncio.run(download_mod(mod, required = True))
-            if not silent: print(msg)
-        if not silent: print("\n\nAll Done updating required mods\n\n")
+            cnt += 1
+            if bot:
+                msg = "Updating required mods: %d of %d" % (cnt, len(mods))
+                await message.edit(content = msg.format(message), allowed_mentions=allowed_mentions)
+            msg = await (download_mod(mod, required = True))
+            if print_: print(msg)
+        if print_: print("\n\nAll Done updating required mods\n\n")
 
     else:
-        if not silent: print("\n\nno required mods\n\n")
+        if print_: print("\n\nno required mods\n\n")
 
     if var.whitelist_mods is not None:
         mods = get_mods(url + str(var.whitelist_mods))
-        if not silent: print('Updating %d whitelist mods' % len(mods))
+        if print_: print('Updating %d whitelist mods' % len(mods))
 
         cwd = os.getcwd()
         os.chdir(var.server_dir + 'Whitelisted Mods/')
@@ -231,23 +254,32 @@ def update_mods(silent = True, autoreload = True):  # change silent to false if 
         process.close()
         os.chdir(cwd)
 
+        cnt = 0
         for mod in mods:
-            msg = asyncio.run(download_mod(mod, required = False))
-            if not silent: print(msg)
+            cnt += 1
+            if bot:
+                msg = "Updating whitelist mods: %d of %d" % (cnt, len(mods))
+                await message.edit(content = msg.format(message), allowed_mentions=allowed_mentions)
+            msg = await download_mod(mod, required = False)
+            if print_: print(msg)
 
-        if not silent: print("\n\nAll Done updating whitelist mods\n\n")
+        if print_: print("\n\nAll Done updating whitelist mods\n\n")
 
     else:
-        if not silent: print("\n\nno whitelist mods\n\n")
+        if print_: print("\n\nno whitelist mods\n\n")
 
     if var.use_dlc:
         add_dlc(silent)
 
     if autoreload:
-        if not silent: print("start to reload....")
-        msg = asyncio.run(send_command("reload", log = True))
-        if not silent: print(msg[0])
+        if print_: print("start to reload....")
+        msg = await send_command("reload", log = True)
+        if print_: print(msg[0])
 
 
-if __name__ == '__main__':
-    result = update_mods(silent = False, autoreload = True)
+async def test(message):
+    allowed_mentions = discord.AllowedMentions.none()
+    for i in range(90):
+        msg = str(i)
+        await message.edit(content = msg.format(message), allowed_mentions=allowed_mentions)
+        await asyncio.sleep(1)

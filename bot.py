@@ -156,11 +156,11 @@ def main():
                 temp = await message.reply("sending the command..".format(message), mention_author=mention_author)
                 log = await rimworld.raw_console_command(params)
 
-                msg = "Command sent successfully\n```\n"+ log[0] + "```"
+                msg = log[0] + "\n```\n" + log[1] + "```"
                 await temp.edit(content = msg.format(message), allowed_mentions=allowed_mentions)
 
-                if len(log) > 1:
-                    for i in range(1,len(log)):
+                if len(log) > 2:
+                    for i in range(2,len(log)):
                         await temp.channel.send("```\n"+ log[i] + "```".format(message), mention_author=mention_author)
 
             # download the mod; include "required" to make it must have mod
@@ -185,7 +185,7 @@ def main():
             # toggle user into whitelist
             if msg == 'whitelist':  
                 if len(message.content.split(" ")) < 2:
-                    whitelist = var.server_dir + 'Whitelisted\ Players.txt'
+                    whitelist = var.server_dir + '"Whitelisted Players.txt"'
                     process = os.popen('cat ' + whitelist)
                     preprocessed = process.read()
                     process.close()
@@ -199,13 +199,15 @@ def main():
 
 
             if msg == "update_mods":
+                msg = "Starting update"
+                temp = await message.reply(msg.format(message), mention_author=mention_author)
                 if var.auto_update:
                     update_mods.restart()
                 else:
-                    rimworld.update_mods()
+                    await rimworld.update_mods(temp)
 
                 msg = "updated mods"
-                await message.reply(msg.format(message), mention_author=mention_author)
+                await temp.edit(content = msg.format(message), allowed_mentions=allowed_mentions)
 
             if msg == "add_dlc":
                 rimworld.add_dlc()
@@ -223,11 +225,18 @@ def main():
                 msg = "Successfully modified. Auto update is currently " + msg
                 await message.reply(msg.format(message), mention_author=mention_author)
 
+            if msg == "test":
+                msg = 'Starting test'
+                message = await message.reply(msg.format(message), mention_author=mention_author)
+                await rimworld.test(message)
+                msg = 'Dond.'
+                await message.reply(msg.format(message), mention_author=mention_author)
+
 
     @tasks.loop(hours=var.auto_update_mods)
     async def update_mods():
         await client.change_presence(activity=discord.Game(name="Updating Mods"))
-        rimworld.update_mods()
+        await rimworld.update_mods()
         await client.change_presence(activity=discord.Game(name="Listening to Commands"))
 
 
