@@ -52,12 +52,12 @@ Helps are written as thinking the prefix is ! as default
 ```
 
 ## Setup
-For windows, due to mismatch of things between my program and openworld server program, all it can do is updating mods.
-I think it will not be fixed unless I tell the mod maker about my errors and I am not going to because it's out of priority.
+For windows, due to mismatch of things between my program and openworld server program, all it can do is updating mods.      
+I think it will not be fixed unless I tell the mod maker about my errors and I am not going to because it's out of priority.      
 ### Prep things
-I am currently using python 3.8.10 which is here https://www.python.org/downloads/release/python-3810/       
-Run the setup.py and you will get all the pip libraries if it does it's job.    
-In case it fails the required are discord.py, importlib, asyncio, requests, beautifulsoup4
+I am currently using python 3.8.10 which is here https://www.python.org/downloads/release/python-3810/          
+Run the setup.py and you will get all the pip libraries if it does it's job.        
+In case it fails the required are discord.py, importlib, asyncio, requests, beautifulsoup4     
 
 ### Setting up discord bot
 https://discordpy.readthedocs.io/en/stable/discord.html
@@ -65,16 +65,16 @@ https://discordpy.readthedocs.io/en/stable/discord.html
 ### Setting up Steamcmd
 We will be using Steamcmd to download mods.   
 I used manual installation and you need to write steamcmd directory in var.py.    
-https://developer.valvesoftware.com/wiki/SteamCMD#Manually
+https://developer.valvesoftware.com/wiki/SteamCMD#Manually    
 
 ### Starting the bot
-Place the files in the same directory with Open World Server.
-Fill in the var.json file whith your informations.   
-Then run the bot. It will automatically start the server with it.
+Place the files in the same directory with Open World Server.    
+Fill in the var.json file whith your informations.    
+Then run the bot. It will automatically start the server with it.     
 
 ### Auto mod update without running bot
-After you have filled in var.json, running the server.py in the console will update all the mods.    
-For windows users, you can't get a autoupdate and even though you do it is pointless because i can't send anything to server console due to mismatch of things.
+After you have filled in var.json, running the server.py in the console will update all the mods.      
+For windows users, you can't get a autoupdate and even though you do it is pointless because i can't send anything to server console due to mismatch of things.      
 For linux users, you can run server.py and it will start your server as well as auto updating mods as in var.json file.
 
 # Currently Working On
