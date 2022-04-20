@@ -73,6 +73,7 @@ Fill in the var.json file whith your informations.
 Then run the bot. It will automatically start the server with it.     
 
 ### Auto mod update without running bot
+If youy don't want a bot, hust fill in parts below the line common thingys in var.json
 After you have filled in var.json, running the server.py in the console will update all the mods.      
 For windows users, you can't get a autoupdate and even though you do it is pointless because i can't send anything to server console due to mismatch of things.      
 For linux users, you can run server.py and it will start your server as well as auto updating mods as in var.json file.
