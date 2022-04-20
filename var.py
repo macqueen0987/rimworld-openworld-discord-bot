@@ -1,41 +1,41 @@
+# this file takes care of any variables that are used around other files
 
-# Your discord ID in int
-me = 11111
+from json import loads
+import requests
 
-# bot token
-token = 'your_bot_token'
+var_json = "https://raw.githubusercontent.com/macqueen0987/rimworld-openworld-discord-bot/main/var.json"
+def init():
+
+    try:
+        with open("var.json") as jsonFile:
+            Lines = jsonFile.readlines()
+            jsonFile.close()
+    except:
+        print("cannot find var.json")
+
+        response = requests.get(var_json).text
+        with open("var.json", "w") as f:
+            f.write(response)
+
+        print("var.json created. please edit it!")
+        input("Press enter to continue")
+        exit()
 
 
-#==============================================================SOME LINE FOR ORGANIZATION===================================================
 
-# prefix
-prefix = '!'
+    jsonObjects = ''
+    for Line in Lines:
+        Line = Line.replace(" ","")
+        if Line.startswith("//") or Line.startswith("\n"):
+            pass
+        else:
+            jsonObjects += Line
 
-server_dir = '../rimworld/'     # loaction of rimworld openworld mod server dir
-steam_dir = '../Steam/'         # dir where steamcmd.sh is loacted. download mods via steamcmd
-screen_name = 'rimworld'        # screen name where you are running Open World Server
+    jsonObjects = loads(jsonObjects)
 
-logfile = 'screenlog.0'         # logfile of the screen from server_dir. please make screen in server directory.
+    for jsonObject in jsonObjects:
+        globals()[jsonObject] = jsonObjects[jsonObject]
 
-wait_for_log = 10               # time you will wait for the log, if too short you may not get the logs from inputs
 
-max_line = 45                   # max line for bot output becaus discord has max amount of letters you can send
-mention_author = False          # metion author in message, if True it will always mention you. i perfer off
-
-auto_update_mods = 24           # invterval to auto update the mods in hours. updating mods are slow and deletes all mods in folder when started.
-                                # Couldn't think of a better way of updating mods...
-auto_update = False             # toggle auto update of mods. if True, it will start updating mods in the start of bot
-
-use_dlc = True                  # whether to use dlc as whitelist mods
-
-# link to DLC in github
-dlc_link = "https://github.com/TastyLollipop/OpenWorld/raw/main/Core%20%26%20DLCs.zip"
-
-#====================================================SPACE FOR MODS=============================================
-# neccessary mods steam collection id, set None if it doesn't exist
-# id can be found in mods collection page url, after the filedetails/?id=
-mods = None
-
-# whitelist mods steam collection id, set None if it doesn't exist
-# id can be found in mods collection page url, after the filedetails/?id=
-whitelist_mods = None
+if __name__ == '__main__':
+    init()

@@ -5,51 +5,22 @@ import requests
 from bs4 import BeautifulSoup
 import sys
 from urllib.parse import unquote
+from urllib.request import urlretrieve
 import discord
+import asyncio
+import platform
+import zipfile
 
 import var
-import asyncio
+import server
 
+var.init()
 max_line = var.max_line
 
 
-async def send_command(command, log = False):
-    screen_name = var.screen_name
-    logfile = var.server_dir + var.logfile
-    try:
-        os.remove(logfile)
-    except Exception as e:
-        print(e)
-
-    screen_command = 'screen -L -S %s -p 0 -X stuff "%s\n"' % (screen_name, command)
-    os.system(screen_command)
-
-    if log:
-        await asyncio.sleep(var.wait_for_log)
-
-        process = os.popen('cat ' + logfile)
-        preprocessed = process.read()
-        preprocessed = preprocessed.replace("[39;49m","").replace("[37m","").replace("[32m","").replace("[H[J","")
-        processed = preprocessed.split('\n')
-        if len(processed) < max_line:
-            msg = [preprocessed]
-        else:
-            cnt = 0
-            msg = []
-            temp = ''
-            for i in processed:
-                if cnt == max_line:
-                    msg.append(temp)
-                    temp = ''
-                    cnt = 0
-                temp += i + '\n'
-                cnt += 1
-
-            if len(temp.replace("\n","").replace(" ","")) > 0:
-                msg.append(temp)
-        process.close()
-
-        return msg
+async def send_to_server(msg):
+    await asyncio.gather(server.write_stdin(var.server_proc.stdin, msg))
+    await asyncio.sleep(var.wait_for_log)
 
 
 async def raw_console_command(command):
@@ -99,18 +70,25 @@ async def download_mod(mod_id, required = False):
     else:
         folder = 'Whitelisted Mods/'
     steam_library = var.server_dir + folder
-    steamcmd = var.steam_dir + "steamcmd.sh "
+    if platform.system() == "Linux": steamcmd = var.steam_dir + "steamcmd.sh "
+    if platform.system() == "Windows": steamcmd = var.steam_dir + "steamcmd.exe "
     login = "+login anonymous "
     install_dir = str('+force_install_dir "'+steam_library+'" ')
     download_mod = "+workshop_download_item 294100 "+ str(mod_id)
-    process = await asyncio.create_subprocess_shell(steamcmd + login + install_dir + download_mod + " +quit", stdout=asyncio.subprocess.PIPE)
-    stdout = await process.communicate()
-    stdout = ''.join([str(value for value in stdout)])
+    process = await asyncio.create_subprocess_shell(steamcmd + login + install_dir + download_mod + " +quit", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+    stdout, stderr = await process.communicate()
+
+    msg = f'exited with {process.returncode}\n\n'
+    if stdout:
+        msg += stdout.decode()
+
+    if stderr:
+        msg += stderr.decode()
     try:
         shutil.rmtree(steam_library + mod_id)
-        stdout += '\ninfo: already existing mod, reinstalling'
+        msg += '\ninfo: already existing mod, reinstalling'
     except Exception as e:
-        stdout += '\ninfo: new mod'
+        msg += '\ninfo: new mod'
 
 
     try:
@@ -118,11 +96,11 @@ async def download_mod(mod_id, required = False):
         shutil.move(download_folder, steam_library)
 
         shutil.rmtree(steam_library+'steamapps')
-        stdout += '\ninfo: All Done!\n\n'
+        msg += '\ninfo: All Done!\n\n'
     except Exception as e:
-        stdout += '\nerror:' + str(e) + '\n\n'
+        msg += '\nerror:' + str(e) + '\n\n'
 
-    return stdout
+    return msg
 
 
 def delete_mod(mod_id):
@@ -188,7 +166,6 @@ def get_mods(url):
         for i in soup:
             dic.append(i.get("id").replace("sharedfile_",""))
 
-
         return dic
 
     else: 
@@ -199,87 +176,180 @@ def get_mods(url):
 def add_dlc(silent = True):
     if not silent: print("Adding DLC to whitelist mods")
     dlc_link = var.dlc_link
-    dlc_name = unquote(dlc_link.split("/")[-1])
     cwd = os.getcwd()
     os.chdir(var.server_dir + 'Whitelisted Mods/')
-    os.system('wget '+dlc_link)
-    os.system("unzip '%s'" % dlc_name)
-    os.system('rm -rf "%s"' % dlc_name)
+    urlretrieve("https://github.com/TastyLollipop/OpenWorld/raw/main/Core%20%26%20DLCs.zip", "DLCs.zip")
+    with zipfile.ZipFile("DLCs.zip") as unzip:
+        unzip.extractall("./")
+    os.remove("DLCs.zip")
     os.chdir(cwd)
     if not silent: print("Done Adding DLC")
 
-# when you want to just keep the mods updated, only change mods in var.py file
-async def update_mods(message = None, silent = True, autoreload = True):  # change silent to false if you want to see everything and autoreload to False if you don't want to reload
+
+async def update_mods(client, message = None, log = False, noreload = False, quick = False): 
     url = 'https://steamcommunity.com/sharedfiles/filedetails/?id='
     allowed_mentions = discord.AllowedMentions.none()
-    if message is None and not silent:
-        print_ = True
-    else:
-        print_ = False
+    mention_author = var.mention_author
 
-    bot = False
-    if message is not None:
-        bot = True
+    msg_, print_= False, False
+    if message is not None and not log:
+        msg_ = True
+
+    if message is not None and log:
+        print_ = True
+
 
     if var.mods is not None:
         mods = get_mods(url + str(var.mods))
-        if print_: print('Updating %d required mods' % len(mods))
+        if print_: msg = 'Updating %d required mods' % len(mods)
+        if print_: message = await message.channel.send(msg.format(message), mention_author=mention_author)
 
         cwd = os.getcwd()
-        os.chdir(var.server_dir + 'Mods/')
-        process = os.popen('rm -rf *')
-        process.close()
+        os.chdir(var.server_dir)
+        lists = os.listdir("Mods/")
+        if not quick:
+            if os.path.exists("./Mods_backup"):
+                shutil.rmtree("./Mods_backup")
+            os.mkdir("./Mods_backup")
+            for list_ in lists:
+                shutil.move("Mods/"+list_, "Mods_backup/")
+
+
+        if quick:
+            need_to_remove = []
+            for list_ in lists:
+                if list_ == '' or not list_.isnumeric(): pass
+                else:
+                    if list_ not in mods:
+                        need_to_remove.append(list_)
+
+            need_to_download = []
+            for mod in mods:
+                if mod not in lists:
+                    need_to_download.append(mod)
+
+            mods = need_to_download
+
+            if len(need_to_remove) > 0:
+                await message.edit(content = f'Deleting {len(need_to_remove)} required mods that are unnecessary', allowed_mentions=allowed_mentions)
+                for mod in need_to_remove:
+                    shutil.rmtree(f"Mods/{mod}")
+            else:
+                await message.edit(content = 'No required mods that are unnecessary', allowed_mentions=allowed_mentions)
+            await asyncio.sleep(1)
+
         os.chdir(cwd)
 
         cnt = 0
-        for mod in mods:
-            cnt += 1
-            if bot:
+
+        if len(mods) > 0:
+            for mod in mods:  # required mods
+                cnt += 1
+
+                msg = "Mod Update %d/%d" % (cnt, len(mods))
+                await client.change_presence(activity=discord.Game(name=msg))
+
                 msg = "Updating required mods: %d of %d" % (cnt, len(mods))
-                await message.edit(content = msg.format(message), allowed_mentions=allowed_mentions)
-            msg = await (download_mod(mod, required = True))
-            if print_: print(msg)
-        if print_: print("\n\nAll Done updating required mods\n\n")
+                if msg_: await message.edit(content = msg.format(message), allowed_mentions=allowed_mentions)
+                if print_: message = await message.channel.send(msg.format(message), mention_author=mention_author)
+
+                msg += '```\n' + await download_mod(mod, required = True) + '```'
+                if print_: await message.edit(content = msg.format(message), allowed_mentions=allowed_mentions)
+
+        if not quick:
+            cwd = os.getcwd()
+            os.chdir(var.server_dir)
+            shutil.rmtree("Mods_backup")
+            os.chdir(cwd)
+
+        if print_: message = await message.channel.send("All done updating required mods", mention_author=mention_author)
+
 
     else:
-        if print_: print("\n\nno required mods\n\n")
+        if msg_: await message.edit(content = "no required mods", allowed_mentions=allowed_mentions)
+        if print_: message = await message.channel.send("no required mods", mention_author=mention_author)
+
+    await asyncio.sleep(1)
 
     if var.whitelist_mods is not None:
         mods = get_mods(url + str(var.whitelist_mods))
-        if print_: print('Updating %d whitelist mods' % len(mods))
+        if print_: msg = 'Updating %d whitelist mods' % len(mods)
+        if print_: message = await message.channel.send(msg.format(message), mention_author=mention_author)
 
         cwd = os.getcwd()
-        os.chdir(var.server_dir + 'Whitelisted Mods/')
-        process = os.popen('rm -rf *')
-        process.close()
+        os.chdir(var.server_dir)
+        lists = os.listdir("Whitelisted Mods/")
+        if not quick:
+            if os.path.exists("./whitelist_Mods_backup"):
+                shutil.rmtree("./whitelist_Mods_backup")
+            os.mkdir("./whitelist_Mods_backup")
+            for list_ in lists:
+                shutil.move("Whitelisted Mods/"+list_, "whitelist_Mods_backup/")
+
+
+        if quick:
+            need_to_remove = []
+            for list_ in lists:
+                if list_ == '' or not list_.isnumeric(): pass
+                else:
+                    if list_ not in mods:
+                        need_to_remove.append(list_)
+
+            need_to_download = []
+            for mod in mods:
+                if mod not in lists:
+                    need_to_download.append(mod)
+
+            mods = need_to_download
+
+            if len(need_to_remove) > 0:
+                await message.edit(content = f'Deleting {len(need_to_remove)} whitelist mods that are unnecessary', allowed_mentions=allowed_mentions)
+                for mod in need_to_remove:
+                    shutil.rmtree(f"Whitelisted Mods/{mod}")
+
+            else:
+                await message.edit(content = 'No whitelist mods that are unnecessary', allowed_mentions=allowed_mentions)    
+            await asyncio.sleep(1)
+
         os.chdir(cwd)
 
         cnt = 0
-        for mod in mods:
-            cnt += 1
-            if bot:
-                msg = "Updating whitelist mods: %d of %d" % (cnt, len(mods))
-                await message.edit(content = msg.format(message), allowed_mentions=allowed_mentions)
-            msg = await download_mod(mod, required = False)
-            if print_: print(msg)
+        if len(mods) > 0:
+            for mod in mods:
+                cnt += 1
 
-        if print_: print("\n\nAll Done updating whitelist mods\n\n")
+                msg = "Mod Update %d/%d" % (cnt, len(mods))
+                await client.change_presence(activity=discord.Game(name=msg))
+
+                msg = "Updating whitelist mods: %d of %d" % (cnt, len(mods))
+                if msg_: await message.edit(content = msg.format(message), allowed_mentions=allowed_mentions)
+                if print_: message = await message.channel.send(msg.format(message), mention_author=mention_author)
+
+                msg += '```\n' + await download_mod(mod, required = False) + '```'
+                if print_: await message.edit(content = msg.format(message), allowed_mentions=allowed_mentions)
+
+        if not quick:
+            cwd = os.getcwd()
+            os.chdir(var.server_dir)
+            shutil.rmtree("whitelist_Mods_backup")
+            os.chdir(cwd)
+
+        if print_: message = await message.channel.send("All done updating Whitelisted mods", mention_author=mention_author)
 
     else:
-        if print_: print("\n\nno whitelist mods\n\n")
+        if msg_: await message.edit(content = "no whitelist mods", allowed_mentions=allowed_mentions)
+        if print_: message = await message.channel.send("no whitelist mods", mention_author=mention_author)
 
-    if var.use_dlc:
-        add_dlc(silent)
+    await asyncio.sleep(1)
 
-    if autoreload:
-        if print_: print("start to reload....")
-        msg = await send_command("reload", log = True)
-        if print_: print(msg[0])
+    if var.use_dlc and not quick:
+        add_dlc()
 
+    if not noreload and var.server_proc is not None:
+        if print_: message = await message.channel.send("start to reload....".format(message), mention_author=mention_author)
+        msg = "Reloaded!"
+        await send_to_server("reload")
+        if log: msg += "\n```\n" + var.console_out + '```'
+        if print_: await message.edit(content=msg.format(message), allowed_mentions=allowed_mentions)
 
-async def test(message):
-    allowed_mentions = discord.AllowedMentions.none()
-    for i in range(90):
-        msg = str(i)
-        await message.edit(content = msg.format(message), allowed_mentions=allowed_mentions)
-        await asyncio.sleep(1)
+    return True
