@@ -8,16 +8,12 @@
     "token" : "your_some_ver_secret_token",
 
 // ==============================================================SOME LINE FOR ORGANIZATION===================================================
-
     // -----------------------------bot thingys-------------------
     // prefix for the bot.
     "prefix": "!",
 
     // prefix commands that will be sent to server
     "server_prefix": "#",
-
-    // server directory where steamcmd.sh or steamcmd.exe file is located. MUST BE ABSOLUTE PATH
-    "steam_dir" : "C:/Users/user/Desktop/steamcmd/",
 
     // time you will wait for the log, if too short you may not get the logs from inputs
     "wait_for_log" : 1,
@@ -28,10 +24,13 @@
     // max line for bot output becaus discord has max amount of letters you can send
     "mention_author":false,
 
+    // -----------------------------common thingys-------------------
+    // server directory where steamcmd.sh file is located. MUST BE ABSOLUTE PATH
+    "steam_dir" : "C:/Users/user/Desktop/steamcmd/",
+
     // auto update mod interval in hours
     "auto_update_mods":24,
 
-    // -----------------------------common thingys-------------------
     // if you are going to use the auto update Thing
     // For those whe are not going to run discord bot, making this true will update the mods at the start, and keep auto updating
     "auto_update":true,
