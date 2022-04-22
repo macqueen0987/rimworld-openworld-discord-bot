@@ -50,7 +50,7 @@ async def write_stdin(stdin, msg):
 
     try:
         msg = msg+'\n'
-        buf = msg.encode(encoding)
+        buf = msg.encode()
         stdin.write(buf)
         await stdin.drain()
         await asyncio.sleep(0.5)
