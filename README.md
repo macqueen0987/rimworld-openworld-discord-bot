@@ -67,7 +67,7 @@ When inviting the bot, just give it administrator rights because it is going to 
 
 ### Setting up Steamcmd
 We will be using Steamcmd to download mods.   
-I used manual installation and you need to write steamcmd directory in var.py.    
+I used manual installation and you need to write steamcmd directory in var.json.    
 https://developer.valvesoftware.com/wiki/SteamCMD#Manually    
 
 ### Starting the bot
