@@ -178,7 +178,7 @@ def add_dlc(silent = True):
     dlc_link = var.dlc_link
     cwd = os.getcwd()
     os.chdir(var.server_dir + 'Whitelisted Mods/')
-    urlretrieve(var.dlc_link, "DLCs.zip")
+    urlretrieve(dlc_link, "DLCs.zip")
     with zipfile.ZipFile("DLCs.zip") as unzip:
         unzip.extractall("./")
     os.remove("DLCs.zip")
