@@ -317,7 +317,11 @@ def main():
 
             if msg == 'log':
                 temp = await message.reply("Fetching logs...", mention_author = mention_author)
-                logs = var.console_out.split('\n')
+                logs = var.console_out
+                if log.replace('\n','').replace(' ','') == '':
+                    await message.edit('No logs to display', allowed_mentions=allowed_mentions)
+                    return
+                logs = logs.split("\n")
                 cnt = 0
                 msg = []
                 if len(logs) < var.max_line:
