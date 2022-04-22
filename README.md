@@ -2,7 +2,7 @@
 Warning: bot and server doesn't work on Windows, all it does is updating mods      
 This is a auto server mod update program and a Discord.py bot that helps taking care of rimworld openworld mod server.     
         
-I'll try to add more features in the future    
+There may be some bugs, and I'll try to fix, add more features in the future    
 and my english is terrible so are my codes.... but it works anyway
 ## What can it do?
 * update mods in mod collection
