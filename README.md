@@ -1,5 +1,7 @@
 # Rimworld-Openworld-Discord-Bot
-This is a Discord.py bot that helps taking care of rimworld openworld mod server.     
+Warning: bot and server doesn't work on Windows, all it does is updating mods
+This is a auto server mod update program and a Discord.py bot that helps taking care of rimworld openworld mod server.     
+        
 I'll try to add more features in the future    
 and my english is terrible so are my codes.... but it works anyway
 ## What can it do?
@@ -60,7 +62,8 @@ Run the setup.py and you will get all the pip libraries if it does it's job.
 In case it fails the required are discord.py, importlib, asyncio, requests, beautifulsoup4     
 
 ### Setting up discord bot
-https://discordpy.readthedocs.io/en/stable/discord.html
+https://discordpy.readthedocs.io/en/stable/discord.html     
+When inviting the bot, just give it administrator rights because it is going to be your bot anyway...
 
 ### Setting up Steamcmd
 We will be using Steamcmd to download mods.   
@@ -73,9 +76,9 @@ Fill in the var.json file whith your informations.
 Then run the bot. It will automatically start the server with it.     
 
 ### Auto mod update without running bot
-If youy don't want a bot, hust fill in parts below the line common thingys in var.json
+If you don't want a bot, just fill in parts below the line common thingys in var.json
 After you have filled in var.json, running the server.py in the console will update all the mods.      
-For windows users, you can't get a autoupdate and even though you do it is pointless because i can't send anything to server console due to mismatch of things.      
+For windows users, you can't get a autoupdate, and even though you do, it is pointless because i can't send anything to server console due to mismatch of things.      
 For linux users, you can run server.py and it will start your server as well as auto updating mods as in var.json file.
 
 # Currently Working On
