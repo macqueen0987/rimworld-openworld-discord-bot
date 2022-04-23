@@ -318,10 +318,10 @@ def main():
             if msg == 'log':
                 temp = await message.reply("Fetching logs...", mention_author = mention_author)
                 logs = var.console_out
-                if log.replace('\n','').replace(' ','') == '':
+                if logs.replace('\n','').replace(' ','') == '':
                     await message.edit('No logs to display', allowed_mentions=allowed_mentions)
                     return
-                logs = logs.split("\n")
+                logs = logs.split('\n')
                 cnt = 0
                 msg = []
                 if len(logs) < var.max_line:
@@ -366,8 +366,23 @@ def main():
             while msg[0] == ' ': msg = msg[1:]
             message = await message.reply(f'Sending "{msg}" to server', mention_author=mention_author)
             await send_to_server(msg)
-            await message.edit(content = f'"{msg}" sent to server\n```\n{var.console_out}```'.format(message), allowed_mentions=allowed_mentions)
-            
+            logs = var.console_out.split("\n")
+            cnt = 0
+            log_arr = []
+            temp = ''
+            for log in logs:
+                if cnt >= var.max_line:
+                    log_arr.append(temp)
+                    temp = ''
+                    cnt = 0
+                temp += log + '\n'
+                cnt += 1
+            log_arr.append(temp)
+            await message.edit(content = f'"{msg}" sent to server\n```\n{log_arr[0]}```'.format(message), allowed_mentions=allowed_mentions)
+            if len(log_arr) > 1:
+                for i in range(1,len(log_arr)):
+                    await message.channel.send("```\n"+ log_arr[i] + "```".format(message), mention_author=mention_author)
+        
 
 
     @tasks.loop(hours=1)
